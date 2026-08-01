@@ -16,7 +16,7 @@ import { extractLinkedText, hasTranslatablePlainText, restoreLinkedHtml } from '
 import { normalizeLangCode } from '../utils/lists.js';
 import { ICONS } from '../ui/icons.js';
 import { isAutoTranslateAllowedForHandle } from './allowlist.js';
-import { getQuoteCard, resolvePostAuthorHandle } from './author.js';
+import { getQuoteCard, getTweetArticle, resolvePostAuthorHandle } from './author.js';
 import { getLanguageSkipReason, isAccountBlocked } from './filters.js';
 
 /** Stop X’s post-open handlers without killing our own click. */
@@ -66,9 +66,9 @@ function shouldHideShownReplaceButton() {
 function syncToolbarVisibility(postEl) {
   const bar = getToolbar(postEl);
   if (!bar) return;
-  const btn = bar.querySelector(`[${BTN_ATTR}]`);
+  const btnInBar = bar.querySelector(`[${BTN_ATTR}]`);
   const hasResult = Boolean(bar.querySelector(`[${RESULT_ATTR}]`));
-  const hideBar = Boolean(btn?.hidden) && !hasResult;
+  const hideBar = Boolean(!btnInBar || btnInBar.hidden) && !hasResult;
   bar.classList.toggle('xt-toolbar--quiet', hideBar);
 }
 
@@ -123,8 +123,62 @@ function findPostTextRoots(root = document) {
   return nodes;
 }
 
+function isInQuoteEmbed(el, article) {
+  if (!el || !article) return false;
+  const quote = el.closest('[data-testid="quoteTweet"]');
+  return Boolean(quote && article.contains(quote));
+}
+
 /**
- * Toolbar placement:
+ * Tweet header actions row: Grok + caret (More).
+ * Insert our control as a sibling before Grok (or before caret if no Grok).
+ * @returns {{ row: Element, before: Element } | null}
+ */
+function findHeaderActionsSlot(postEl) {
+  if (getQuoteCard(postEl)) return null;
+  const article = getTweetArticle(postEl);
+  if (!article) return null;
+
+  let grokBtn = null;
+  for (const btn of article.querySelectorAll('button[aria-label]')) {
+    if (isInQuoteEmbed(btn, article)) continue;
+    if (/grok/i.test(btn.getAttribute('aria-label') || '')) {
+      grokBtn = btn;
+      break;
+    }
+  }
+
+  if (grokBtn?.parentElement?.parentElement) {
+    const wrap = grokBtn.parentElement;
+    const row = wrap.parentElement;
+    if (row && article.contains(row)) {
+      return { row, before: wrap };
+    }
+  }
+
+  const caret = [...article.querySelectorAll('[data-testid="caret"]')].find(
+    (el) => !isInQuoteEmbed(el, article)
+  );
+  if (!caret) return null;
+
+  let node = caret;
+  while (node.parentElement && node.parentElement !== article) {
+    const parent = node.parentElement;
+    const style = getComputedStyle(parent);
+    const isRow =
+      (style.display === 'flex' || style.display === 'inline-flex') &&
+      String(style.flexDirection || '').startsWith('row');
+    if (isRow && parent.children.length >= 1 && parent.children.length <= 4) {
+      const before = [...parent.children].find((child) => child.contains(caret));
+      if (before) return { row: parent, before };
+    }
+    node = parent;
+  }
+  return null;
+}
+
+/**
+ * Toolbar (result panel) placement:
  * - normal posts / replies: sibling after the text node
  * - quote embeds: last child of the quote card so media stays under the text
  */
@@ -141,6 +195,21 @@ function getToolbar(postEl) {
   return null;
 }
 
+function getTranslateButton(postEl) {
+  const bar = getToolbar(postEl);
+  const inBar = bar?.querySelector(`[${BTN_ATTR}]`);
+  if (inBar) return inBar;
+
+  if (getQuoteCard(postEl)) return null;
+
+  const article = getTweetArticle(postEl);
+  if (!article) return null;
+  return (
+    article.querySelector(`.xt-header-action [${BTN_ATTR}]`) ||
+    article.querySelector(`[${BTN_ATTR}][data-xt-header="1"]`)
+  );
+}
+
 function placeToolbar(postEl, bar) {
   const quote = getQuoteCard(postEl);
   if (quote) {
@@ -151,6 +220,42 @@ function placeToolbar(postEl, bar) {
   }
   if (postEl.nextElementSibling !== bar) {
     postEl.insertAdjacentElement('afterend', bar);
+  }
+}
+
+function placeTranslateButton(postEl, btn) {
+  const slot = findHeaderActionsSlot(postEl);
+  if (slot) {
+    btn.classList.add('xt-btn--header');
+    btn.setAttribute('data-xt-header', '1');
+
+    let wrap = btn.closest('.xt-header-action');
+    if (!wrap) {
+      wrap = document.createElement('div');
+      wrap.className = 'xt-header-action';
+      wrap.appendChild(btn);
+    } else if (btn.parentElement !== wrap) {
+      wrap.appendChild(btn);
+    }
+
+    if (wrap.parentElement !== slot.row || wrap.nextElementSibling !== slot.before) {
+      slot.row.insertBefore(wrap, slot.before);
+    }
+    const label = btn.getAttribute('aria-label');
+    if (label) btn.title = label;
+    return;
+  }
+
+  // Fallback: under tweet text (quotes / missing header chrome).
+  btn.classList.remove('xt-btn--header');
+  btn.removeAttribute('data-xt-header');
+  const orphanWrap = btn.closest('.xt-header-action');
+  const bar = ensureToolbar(postEl);
+  if (orphanWrap) {
+    orphanWrap.replaceWith(btn);
+  }
+  if (btn.parentElement !== bar) {
+    bar.insertBefore(btn, bar.firstChild);
   }
 }
 
@@ -182,7 +287,11 @@ function postHasTranslatableContent(el) {
 
 function teardownPostUi(el) {
   clearDisplay(el);
+  const btn = getTranslateButton(el);
+  const headerWrap = btn?.closest?.('.xt-header-action');
   getToolbar(el)?.remove();
+  if (headerWrap) headerWrap.remove();
+  else if (btn?.getAttribute?.('data-xt-header') === '1') btn.remove();
   el.removeAttribute(POST_ATTR);
   el.removeAttribute(OBSERVED_ATTR);
   el.removeAttribute(AUTO_DONE_ATTR);
@@ -432,17 +541,12 @@ function bindToolbar(bar, postEl) {
 
       const retry = event.target.closest?.('[data-xt-retry]');
       if (retry && bar.contains(retry)) {
-        const translateBtn = bar.querySelector(`[${BTN_ATTR}]`);
+        const translateBtn = getTranslateButton(postEl);
         if (translateBtn) {
           postEl.removeAttribute(AUTO_DONE_ATTR);
           runTranslate(postEl, translateBtn);
         }
         return;
-      }
-
-      const btn = event.target.closest?.(`[${BTN_ATTR}]`);
-      if (btn && bar.contains(btn)) {
-        onTranslateClick(postEl, btn);
       }
     },
     true
@@ -461,17 +565,40 @@ function ensureToolbar(postEl) {
   return bar;
 }
 
-function ensureButton(postEl) {
-  const bar = ensureToolbar(postEl);
-  let btn = bar.querySelector(`[${BTN_ATTR}]`);
-  if (btn) return btn;
+function bindTranslateButton(btn, postEl) {
+  if (btn.dataset.xtBound === '1') return;
+  btn.dataset.xtBound = '1';
 
-  btn = document.createElement('button');
-  btn.type = 'button';
-  btn.className = 'xt-btn';
-  btn.setAttribute(BTN_ATTR, '1');
-  setButtonLabel(btn, t.btnTranslate);
-  bar.appendChild(btn);
+  const quiet = (event) => {
+    event.stopPropagation();
+  };
+  for (const type of QUIET_POINTER_EVENTS) {
+    btn.addEventListener(type, quiet, true);
+  }
+
+  btn.addEventListener(
+    'click',
+    (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      onTranslateClick(postEl, btn);
+    },
+    true
+  );
+}
+
+function ensureButton(postEl) {
+  let btn = getTranslateButton(postEl);
+  if (!btn) {
+    btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'xt-btn';
+    btn.setAttribute(BTN_ATTR, '1');
+    setButtonLabel(btn, t.btnTranslate);
+  }
+  placeTranslateButton(postEl, btn);
+  bindTranslateButton(btn, postEl);
+  syncToolbarVisibility(postEl);
   return btn;
 }
 
@@ -577,8 +704,10 @@ function hideResult(postEl, { remove = false } = {}) {
 }
 
 function setButtonLabel(btn, label, { loading = false } = {}) {
+  const header = btn.classList.contains('xt-btn--header');
   btn.classList.toggle('is-loading', loading);
   btn.disabled = loading;
+  btn.setAttribute('aria-label', label);
   if (loading) {
     btn.setAttribute('aria-busy', 'true');
     btn.innerHTML =
@@ -590,6 +719,8 @@ function setButtonLabel(btn, label, { loading = false } = {}) {
   btn.innerHTML =
     `${buttonIconForLabel(label)}` +
     `<span class="xt-btn__label">${escapeHtml(label)}</span>`;
+  if (header) btn.title = label;
+  else btn.removeAttribute('title');
 }
 
 async function runTranslate(postEl, btn) {
@@ -683,7 +814,7 @@ function pumpAutoQueue() {
     if (!shouldAutoTranslatePost(postEl)) continue;
     if (postEl.getAttribute(AUTO_DONE_ATTR) === '1') continue;
 
-    const btn = getToolbar(postEl)?.querySelector(`[${BTN_ATTR}]`);
+    const btn = getTranslateButton(postEl);
     if (!btn || btn.classList.contains('is-loading') || btn.dataset.xtState === 'shown') {
       if (btn?.dataset.xtState === 'shown') postEl.setAttribute(AUTO_DONE_ATTR, '1');
       continue;
@@ -703,7 +834,7 @@ function enqueueAutoTranslate(postEl) {
   if (!shouldAutoTranslatePost(postEl)) return;
   if (postEl.getAttribute(AUTO_DONE_ATTR) === '1') return;
   if (postEl.getAttribute(AUTO_QUEUED_ATTR) === '1') return;
-  const btn = getToolbar(postEl)?.querySelector(`[${BTN_ATTR}]`);
+  const btn = getTranslateButton(postEl);
   if (!btn || btn.classList.contains('is-loading') || btn.dataset.xtState === 'shown') {
     if (btn?.dataset.xtState === 'shown') postEl.setAttribute(AUTO_DONE_ATTR, '1');
     return;
@@ -751,11 +882,18 @@ function enhancePost(el) {
   }
 
   if (el.hasAttribute(POST_ATTR)) {
-    // Re-place / re-bind if an older build left the toolbar between text and media.
+    // Re-place chrome if X re-rendered the tweet header / text tree.
     const bar = getToolbar(el);
     if (bar) {
       placeToolbar(el, bar);
       bindToolbar(bar, el);
+    }
+    const btn = getTranslateButton(el);
+    if (btn) {
+      placeTranslateButton(el, btn);
+      bindTranslateButton(btn, el);
+    } else {
+      ensureButton(el);
     }
     observeForAuto(el);
     return;
@@ -781,7 +919,7 @@ export function scanPosts() {
   }
 
   document.querySelectorAll(`[${POST_ATTR}]`).forEach((postEl) => {
-    const btn = getToolbar(postEl)?.querySelector(`[${BTN_ATTR}]`);
+    const btn = getTranslateButton(postEl);
     if (!btn || btn.classList.contains('is-loading')) return;
     if (btn.dataset.xtState === 'shown') applyShownButton(btn, postEl);
     else applyIdleButton(btn, postEl);

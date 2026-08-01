@@ -522,8 +522,11 @@ function buildGeneralPanelHtml() {
       </div>
     </div>
     <label class="xt-check xt-check--card">
+      <span class="xt-check__text">
+        <span class="xt-check__title">${escapeHtml(t.settingsSkipSame)}</span>
+      </span>
       <input name="autoDetectSkipSameLang" type="checkbox"${settings.autoDetectSkipSameLang ? ' checked' : ''} />
-      <span>${escapeHtml(t.settingsSkipSame)}</span>
+      <span class="xt-check__track" aria-hidden="true"></span>
     </label>
   `;
 
@@ -767,11 +770,14 @@ export function openSettings() {
   root.innerHTML = `
     <div class="xt-settings" role="dialog" aria-modal="true" aria-labelledby="xt-settings-title">
       <header class="xt-settings__header">
+        <button type="button" class="xt-settings__x" data-xt-close="1" aria-label="${escapeAttr(t.settingsClose)}">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M10.59 12 4.54 5.96l1.42-1.42L12 10.59l6.04-6.05 1.42 1.42L13.41 12l6.05 6.04-1.42 1.42L12 13.41l-6.04 6.05-1.42-1.42L10.59 12z"/></svg>
+        </button>
         <div class="xt-settings__heading">
           <h2 id="xt-settings-title">${escapeHtml(t.settingsTitle)}</h2>
           <p class="xt-settings__ver">v${escapeHtml(SCRIPT_VERSION)}</p>
         </div>
-        <button type="button" class="xt-settings__x" data-xt-close="1" aria-label="${escapeAttr(t.settingsClose)}">×</button>
+        <span class="xt-settings__header-spacer" aria-hidden="true"></span>
       </header>
       <div class="xt-settings__tabs" role="tablist" aria-label="${escapeAttr(t.settingsTitle)}">
         ${buildTabsHtml(activeTab)}
@@ -819,11 +825,12 @@ export function openSettings() {
               t.settingsSectionDebug,
               `
                 <label class="xt-check xt-check--card">
-                  <input name="debugMode" type="checkbox"${settings.debugMode ? ' checked' : ''} />
-                  <span>
+                  <span class="xt-check__text">
                     <strong class="xt-check__title">${escapeHtml(t.settingsDebug)}</strong>
                     <span class="xt-check__hint">${escapeHtml(t.settingsDebugHint)}</span>
                   </span>
+                  <input name="debugMode" type="checkbox"${settings.debugMode ? ' checked' : ''} />
+                  <span class="xt-check__track" aria-hidden="true"></span>
                 </label>
                 <div data-xt-stats-host>${buildStatsHtml()}</div>
               `

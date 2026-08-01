@@ -1,50 +1,97 @@
 /**
  * X sets theme via color-scheme / background on <html>, and sometimes
  * `data-color-mode` / class tokens. Mirror into data-xt-theme for our UI.
+ *
+ * Themes: light | dim (#15202b) | dark / lights-out (#000).
  */
 
 const THEME_ATTR = 'data-xt-theme';
+
+/** @typedef {'light' | 'dim' | 'dark'} XtTheme */
 
 function luminanceFromRgb(r, g, b) {
   return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
 }
 
-function parseBgLuminance(bg) {
+function parseBgRgb(bg) {
   if (!bg || bg === 'transparent' || bg === 'rgba(0, 0, 0, 0)') return null;
   const rgb = bg.match(/rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)/i);
   if (!rgb) return null;
-  return luminanceFromRgb(Number(rgb[1]), Number(rgb[2]), Number(rgb[3]));
+  return {
+    r: Number(rgb[1]),
+    g: Number(rgb[2]),
+    b: Number(rgb[3]),
+  };
 }
 
-/** @returns {'light' | 'dark'} */
+function parseBgLuminance(bg) {
+  const rgb = parseBgRgb(bg);
+  if (!rgb) return null;
+  return luminanceFromRgb(rgb.r, rgb.g, rgb.b);
+}
+
+/**
+ * Classify a page background into X’s three themes.
+ * Dim (~#15202b) sits between near-black lights-out and light.
+ * @returns {XtTheme | null}
+ */
+function themeFromBackground(bg) {
+  const rgb = parseBgRgb(bg);
+  if (!rgb) return null;
+  const lum = luminanceFromRgb(rgb.r, rgb.g, rgb.b);
+  if (lum > 0.55) return 'light';
+  // Near-black lights out
+  if (lum < 0.04) return 'dark';
+  // Dim blue-gray band (typical #15202b ≈ lum 0.11)
+  if (lum >= 0.04 && lum <= 0.28) {
+    // Prefer dim when blue channel is competitive (X dim is cool navy)
+    if (rgb.b >= rgb.r - 5) return 'dim';
+    return 'dark';
+  }
+  return 'dark';
+}
+
+function explicitThemeToken(raw) {
+  if (!raw) return null;
+  const v = String(raw).toLowerCase().trim();
+  if (v === 'light' || v === 'dim' || v === 'dark') return v;
+  if (v === 'lights-out' || v === 'lightsout' || v === 'black') return 'dark';
+  return null;
+}
+
+/** @returns {XtTheme} */
 export function detectPageTheme() {
   const root = document.documentElement;
   const body = document.body;
 
   const explicit =
-    root.getAttribute('data-color-mode') ||
-    root.getAttribute('data-theme') ||
-    body?.getAttribute?.('data-color-mode') ||
-    body?.getAttribute?.('data-theme');
-  if (explicit === 'light' || explicit === 'dark') return explicit;
+    explicitThemeToken(root.getAttribute('data-color-mode')) ||
+    explicitThemeToken(root.getAttribute('data-theme')) ||
+    explicitThemeToken(body?.getAttribute?.('data-color-mode')) ||
+    explicitThemeToken(body?.getAttribute?.('data-theme'));
+  if (explicit) return explicit;
+
+  const classBlob = `${root.className || ''} ${body?.className || ''}`.toLowerCase();
+  if (/\bdim\b/.test(classBlob)) return 'dim';
+  if (/\blights?-?out\b/.test(classBlob)) return 'dark';
+
+  for (const el of [body, root]) {
+    if (!el) continue;
+    const fromBg = themeFromBackground(getComputedStyle(el).backgroundColor);
+    if (fromBg) return fromBg;
+  }
 
   const scheme = getComputedStyle(root).colorScheme || '';
   if (/\blight\b/i.test(scheme) && !/\bdark\b/i.test(scheme)) return 'light';
   if (/\bdark\b/i.test(scheme) && !/\blight\b/i.test(scheme)) return 'dark';
 
-  for (const el of [body, root]) {
-    if (!el) continue;
-    const lum = parseBgLuminance(getComputedStyle(el).backgroundColor);
-    if (lum == null) continue;
-    return lum > 0.55 ? 'light' : 'dark';
-  }
-
   if (window.matchMedia?.('(prefers-color-scheme: light)')?.matches) return 'light';
   return 'dark';
 }
 
+/** @param {XtTheme} [theme] */
 export function applyPageTheme(theme = detectPageTheme()) {
-  const next = theme === 'light' ? 'light' : 'dark';
+  const next = theme === 'light' || theme === 'dim' ? theme : 'dark';
   if (document.documentElement.getAttribute(THEME_ATTR) !== next) {
     document.documentElement.setAttribute(THEME_ATTR, next);
   }

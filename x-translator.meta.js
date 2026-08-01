@@ -8,7 +8,7 @@
 // @name:fr            X Translator
 // @name:ja            X Translator
 // @namespace          https://github.com/NemoKing1210/x-translator
-// @version            1.0.0
+// @version            1.1.1
 // @author             NemoKing1210
 // @description        Translate X posts in place on x.com
 // @description:ru     Переводит посты X прямо на x.com

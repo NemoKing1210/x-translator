@@ -1,0 +1,32 @@
+{
+  "name": "x-translator",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Userscript that adds post translation on X (x.com)",
+  "author": "NemoKing1210",
+  "license": "MIT",
+  "homepage": "https://github.com/NemoKing1210/x-translator",
+  "bugs": {
+    "url": "https://github.com/NemoKing1210/x-translator/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NemoKing1210/x-translator.git"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && node scripts/copy-dist.mjs",
+    "verify:artifacts": "node scripts/verify-artifacts.mjs",
+    "ci": "npm run build && npm run verify:artifacts",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "terser": "^5.49.0",
+    "vite": "^6.0.0",
+    "vite-plugin-monkey": "^5.0.0"
+  }
+}

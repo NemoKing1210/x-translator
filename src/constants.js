@@ -113,7 +113,6 @@ export const DEFAULT_SETTINGS = {
   langAllowlist: [],
   /** Skip translation when detected source is in this list */
   langBlocklist: [],
-  autoDetectSkipSameLang: true,
   provider: 'google',
   providerConfig: mergeProviderConfig(null),
 };

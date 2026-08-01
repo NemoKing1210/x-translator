@@ -750,7 +750,6 @@ async function runTranslate(postEl, btn) {
       btn.dataset.xtState = 'shown';
       syncToolbarVisibility(postEl);
     } else if (
-      settings.autoDetectSkipSameLang &&
       result.detectedSourceLang &&
       result.detectedSourceLang.toLowerCase() === targetLang.toLowerCase() &&
       result.text.trim() === text.trim()

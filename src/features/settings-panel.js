@@ -637,13 +637,6 @@ function buildGeneralPanelHtml() {
         })}
       </div>
     </div>
-    <label class="xt-check xt-check--card">
-      <span class="xt-check__text">
-        <span class="xt-check__title">${escapeHtml(t.settingsSkipSame)}</span>
-      </span>
-      <input name="autoDetectSkipSameLang" type="checkbox"${settings.autoDetectSkipSameLang ? ' checked' : ''} />
-      <span class="xt-check__track" aria-hidden="true"></span>
-    </label>
   `;
 
   const accountsBody = listEditorHtml({
@@ -807,7 +800,6 @@ function readForm(form) {
       Number.isFinite(cacheHours) && cacheHours >= 0
         ? Math.min(cacheHours, CACHE_HOURS_MAX)
         : DEFAULT_SETTINGS.cacheHours,
-    autoDetectSkipSameLang: form.autoDetectSkipSameLang.checked,
     translateMode: form.translateMode?.value === 'auto' ? 'auto' : 'button',
     displayMode: form.displayMode?.value === 'replace' ? 'replace' : 'panel',
     replaceReveal:

@@ -24,6 +24,7 @@ function normalizeSettings(raw) {
   merged.langAllowlist = normalizeLangList(merged.langAllowlist);
   merged.langBlocklist = normalizeLangList(merged.langBlocklist);
   delete merged.debugMode;
+  delete merged.autoDetectSkipSameLang;
   return merged;
 }
 

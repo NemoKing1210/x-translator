@@ -80,37 +80,7 @@ html:not([data-xt-theme]) {
   --xt-link: #1d9bf0;
 }
 
-/* ── Left nav ── */
-a.xt-nav-item,
-button.xt-nav-item {
-  appearance: none;
-  border: 0;
-  background: transparent;
-  color: var(--xt-chrome-fg) !important;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-  width: 100%;
-  box-sizing: border-box;
-  text-decoration: none;
-}
-
-a.xt-nav-item:hover,
-button.xt-nav-item:hover {
-  background-color: var(--xt-nav-hover);
-}
-
-button.xt-nav-item svg,
-button.xt-nav-item [data-xt-nav-label],
-button.xt-nav-item svg [fill]:not([fill='none']) {
-  color: var(--xt-chrome-fg) !important;
-  fill: var(--xt-chrome-fg) !important;
-}
-
-button.xt-nav-item svg {
-  display: block;
-}
-
+/* Tweet … menu items (not sidebar — those clone native classes as-is). */
 .xt-menu-item,
 .xt-menu-item__label,
 .xt-menu-item__icon {

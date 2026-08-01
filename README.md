@@ -3,14 +3,14 @@
 [![CI](https://github.com/NemoKing1210/x-translator/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/x-translator/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/⬇_Install-userscript-1d9bf0?style=for-the-badge)](https://raw.githubusercontent.com/NemoKing1210/x-translator/main/x-translator.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.1.1-green?style=for-the-badge)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.1.4-green?style=for-the-badge)](CHANGELOG.md)
 [![Node](https://img.shields.io/badge/node-%3E%3D20-brightgreen?style=for-the-badge)](package.json)
 
 Userscript that adds **in-place translation** for posts and replies on [X](https://x.com) (Twitter) — without leaving the feed.
 
 Compatible with [Tampermonkey](https://www.tampermonkey.net/), [Violentmonkey](https://violentmonkey.github.io/), [Greasemonkey](https://www.greasespot.net/), [ScriptCat](https://scriptcat.org/), and other managers that support the `// ==UserScript==` metadata block.
 
-> **Status:** stable (`1.1.1`) — translate posts & comments in place, multiple providers, cache, filters, UI matched to X light / dim / lights-out.
+> **Status:** stable (`1.1.4`) — translate posts & comments in place, multiple providers, cache, filters, UI matched to X light / dim / lights-out.
 > **Note:** Not affiliated with X Corp. or Twitter.
 
 ---

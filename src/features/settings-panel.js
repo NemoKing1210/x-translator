@@ -33,7 +33,11 @@ const SETTINGS_TABS = [
   { id: 'about', labelKey: 'sectionAbout' },
 ];
 
-const NAV_ICON = `<svg viewBox="0 0 24 24" aria-hidden="true" width="26.25" height="26.25"><path fill="currentColor" d="M12.87 15.07l-2.54-2.51.03-.03A17.52 17.52 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg>`;
+const NAV_ICON_PATH =
+  'M12.87 15.07l-2.54-2.51.03-.03A17.52 17.52 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z';
+
+/** X adds this on the pill via JS on hover (not CSS :hover). May change with client builds. */
+let navHoverClass = 'r-1hdo0pc';
 
 function findSideNavs() {
   const bars = [
@@ -47,81 +51,195 @@ function findSideNavs() {
     return Boolean(
       nav.querySelector('[data-testid="AppTabBar_More_Menu"]') ||
         nav.querySelector('a[href="/settings"]') ||
-        nav.querySelector('a[href*="/settings"]')
+        nav.querySelector('a[href*="/settings"]') ||
+        nav.querySelector('a[data-testid="AppTabBar_Home_Link"]')
     );
   });
 }
 
-function findNavAnchor(nav) {
+function navLabelWeight(el) {
+  const label = el?.querySelector?.('div[dir]');
+  if (!label) return null;
+  const raw = getComputedStyle(label).fontWeight;
+  const n = Number.parseInt(raw, 10);
+  if (Number.isFinite(n)) return n;
+  if (raw === 'bold') return 700;
+  if (raw === 'normal') return 400;
+  return null;
+}
+
+/**
+ * Learn the live hover class from native rows (X renames r-* hashes over time).
+ */
+function observeNativeNavHoverClass(nav) {
+  if (nav.dataset.xtHoverObs === '1') return;
+  nav.dataset.xtHoverObs = '1';
+  const obs = new MutationObserver((mutations) => {
+    for (const m of mutations) {
+      if (m.type !== 'attributes' || m.attributeName !== 'class') continue;
+      const el = m.target;
+      if (!(el instanceof Element)) continue;
+      if (el.closest(`[${NAV_BTN_ATTR}]`)) continue;
+      if (!nav.contains(el)) continue;
+      const parent = el.parentElement;
+      if (!parent || parent.parentElement !== nav) continue;
+      if (parent.getAttribute('role') !== 'link' && parent.getAttribute('role') !== 'button') {
+        continue;
+      }
+      const prev = new Set(String(m.oldValue || '').split(/\s+/).filter(Boolean));
+      const added = [...el.classList].filter(
+        (c) => !prev.has(c) && /^r-[a-z0-9]+$/i.test(c)
+      );
+      if (added.length === 1) navHoverClass = added[0];
+    }
+  });
+  obs.observe(nav, {
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['class'],
+    attributeOldValue: true,
+  });
+}
+
+function navHoverPill(btn) {
+  return btn?.firstElementChild instanceof HTMLElement ? btn.firstElementChild : null;
+}
+
+/** Mirror X: toggle hover outline class on the inner pill (React does this for native rows). */
+function bindNavHoverChrome(btn) {
+  if (!(btn instanceof HTMLElement) || btn.dataset.xtNavHover === '1') return;
+  btn.dataset.xtNavHover = '1';
+
+  const setHover = (on) => {
+    const pill = navHoverPill(btn);
+    if (!pill || !navHoverClass) return;
+    pill.classList.toggle(navHoverClass, on);
+  };
+
+  btn.addEventListener('pointerenter', () => setHover(true));
+  btn.addEventListener('pointerleave', () => setHover(false));
+  btn.addEventListener('focusin', () => setHover(true));
+  btn.addEventListener('focusout', (e) => {
+    if (e.relatedTarget instanceof Node && btn.contains(e.relatedTarget)) return;
+    setHover(false);
+  });
+}
+
+/**
+ * Clone an *inactive* native row so we get normal weight + hover pill.
+ * Prefer More (never a selected route). Never prefer Home first — it’s often active/bold.
+ */
+function findNavTemplate(nav) {
+  const more = nav.querySelector('[data-testid="AppTabBar_More_Menu"]');
+  if (more?.querySelector('svg') && more.querySelector('div[dir]')) return more;
+
+  const links = [...nav.querySelectorAll('a[role="link"], a[href]')].filter(
+    (a) =>
+      !a.hasAttribute(NAV_BTN_ATTR) &&
+      a.querySelector('svg') &&
+      a.querySelector('div[dir]')
+  );
+
+  const inactive = links.find((a) => {
+    if (a.getAttribute('aria-current') === 'page') return false;
+    const w = navLabelWeight(a);
+    return w == null || w < 600;
+  });
+  if (inactive) return inactive;
+
+  return (
+    nav.querySelector('a[data-testid="AppTabBar_Explore_Link"]') ||
+    nav.querySelector('a[data-testid="AppTabBar_Profile_Link"]') ||
+    links[0] ||
+    null
+  );
+}
+
+function findNavInsertBefore(nav) {
   return (
     nav.querySelector('[data-testid="AppTabBar_More_Menu"]') ||
     nav.querySelector('a[href="/settings"]') ||
     nav.querySelector('a[href*="/settings"]') ||
-    nav.querySelector('a[href="/home"]') ||
-    nav.querySelector('a[role="link"]')
+    null
   );
 }
 
 function syncNavButtonLabels(btn) {
   btn.setAttribute('aria-label', t.navSettings);
-  const label = btn.querySelector('[data-xt-nav-label]');
+  const label =
+    btn.querySelector('[data-xt-nav-label]') ||
+    btn.querySelector('div[dir] > span') ||
+    null;
   if (label) label.textContent = t.navSettings;
 }
 
-function stripColorStyles(cssText) {
-  return String(cssText || '')
-    .split(';')
-    .map((part) => part.trim())
-    .filter((part) => part && !/^color\s*:/i.test(part))
-    .join('; ');
+function stripNavBadges(root) {
+  root
+    .querySelectorAll(
+      '[aria-live], [aria-label*="непрочит" i], [aria-label*="unread" i], [aria-label*="Количество" i]'
+    )
+    .forEach((el) => el.remove());
 }
 
+function applyNavIcon(svg) {
+  if (!(svg instanceof SVGElement)) return;
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('aria-hidden', 'true');
+  svg.removeAttribute('width');
+  svg.removeAttribute('height');
+  // Keep X’s svg class list (size / fill via r-*); only swap the glyph.
+  svg.innerHTML = `<g><path d="${NAV_ICON_PATH}"></path></g>`;
+}
+
+function applyNavLabel(root, text) {
+  const labelDiv = [...root.querySelectorAll('div[dir]')].find(
+    (el) => el.querySelector(':scope > span') && !el.querySelector('svg')
+  );
+  if (labelDiv) {
+    const spans = [...labelDiv.querySelectorAll(':scope > span')];
+    if (spans[0]) {
+      spans[0].textContent = text;
+      spans[0].setAttribute('data-xt-nav-label', '1');
+    }
+    // Keep trailing spacer span(s) as X renders them.
+    return;
+  }
+  const anySpan = root.querySelector('span');
+  if (anySpan) {
+    anySpan.textContent = text;
+    anySpan.setAttribute('data-xt-nav-label', '1');
+  }
+}
+
+/** Deep-clone template into an <a>, preserving every native class (hover pill, type). */
 function buildNavButton(template) {
-  const btn = document.createElement('a');
+  let btn;
+  if (template instanceof HTMLAnchorElement) {
+    btn = template.cloneNode(true);
+  } else {
+    btn = document.createElement('a');
+    btn.className = template.className;
+    btn.innerHTML = template.innerHTML;
+  }
+
   btn.href = '#';
   btn.setAttribute(NAV_BTN_ATTR, '1');
   btn.setAttribute('role', 'link');
-  btn.className = `${template.className} xt-nav-item`.trim();
-  btn.style.cssText = stripColorStyles(template.getAttribute('style') || '');
+  btn.removeAttribute('data-testid');
+  btn.removeAttribute('type');
+  btn.removeAttribute('aria-expanded');
+  btn.removeAttribute('aria-haspopup');
+  btn.removeAttribute('aria-describedby');
+  btn.removeAttribute('aria-current');
   btn.setAttribute('aria-label', t.navSettings);
   btn.tabIndex = 0;
+  // Do not touch style on descendants — X sets label color inline.
 
-  // X nav items: often a wrapper with icon + optional label span
-  const templateInner =
-    template.querySelector('div') ||
-    template.querySelector('span') ||
-    null;
+  stripNavBadges(btn);
+  applyNavIcon(btn.querySelector('svg'));
+  applyNavLabel(btn, t.navSettings);
+  bindNavHoverChrome(btn);
 
-  const row = document.createElement('div');
-  row.className = templateInner?.className || '';
-  row.style.cssText =
-    stripColorStyles(templateInner?.getAttribute('style') || '') ||
-    'display: flex; align-items: center; gap: 20px;';
-
-  const iconWrap = document.createElement('div');
-  iconWrap.style.cssText =
-    'display: flex; align-items: center; justify-content: center; width: 26.25px; height: 26.25px;';
-  iconWrap.innerHTML = NAV_ICON;
-  const svg = iconWrap.querySelector('svg');
-  if (svg) {
-    svg.style.color = 'currentColor';
-    svg.querySelectorAll('[fill]').forEach((node) => {
-      if (node.getAttribute('fill') && node.getAttribute('fill') !== 'none') {
-        node.setAttribute('fill', 'currentColor');
-      }
-    });
-  }
-
-  const labelEl = document.createElement('span');
-  labelEl.style.cssText =
-    'font-size: 20px; line-height: 24px; font-weight: 400;';
-  labelEl.style.removeProperty('color');
-  labelEl.setAttribute('dir', 'auto');
-  labelEl.setAttribute('data-xt-nav-label', '1');
-  labelEl.textContent = t.navSettings;
-
-  row.append(iconWrap, labelEl);
-  btn.append(row);
   btn.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -130,20 +248,18 @@ function buildNavButton(template) {
   return btn;
 }
 
-function syncNavButtonChrome(btn) {
-  syncNavButtonLabels(btn);
-  btn.style.cssText = stripColorStyles(btn.getAttribute('style') || '');
-  btn.style.removeProperty('color');
-  btn.querySelectorAll('[data-xt-nav-label], svg').forEach((el) => {
-    if (el instanceof HTMLElement || el instanceof SVGElement) {
-      el.style.removeProperty('color');
-    }
-  });
-  btn.querySelectorAll('svg [fill]').forEach((node) => {
-    if (node.getAttribute('fill') && node.getAttribute('fill') !== 'none') {
-      node.setAttribute('fill', 'currentColor');
-    }
-  });
+function navButtonNeedsRebuild(btn) {
+  const html = btn.innerHTML || '';
+  if (/gap:\s*20px/i.test(html) || /width:\s*26\.25px/i.test(html)) return true;
+  if (!btn.querySelector('svg') || !btn.querySelector('div[dir]')) return true;
+  // Cloned from active Home → bold label; force rebuild from inactive template.
+  const w = navLabelWeight(btn);
+  if (w != null && w >= 600) return true;
+  // Old builds added xt-nav-item and custom hover CSS that broke native pill hover.
+  if (btn.classList.contains('xt-nav-item')) return true;
+  // Need hover-class mirror (X applies r-1hdo0pc via JS, not :hover).
+  if (btn.dataset.xtNavHover !== '1') return true;
+  return false;
 }
 
 /**
@@ -152,27 +268,29 @@ function syncNavButtonChrome(btn) {
  */
 export function ensureNavSettingsButton() {
   for (const nav of findSideNavs()) {
+    observeNativeNavHoverClass(nav);
     const existing = nav.querySelector(`[${NAV_BTN_ATTR}]`);
+    const template = findNavTemplate(nav);
+    if (!template) continue;
+
     if (existing) {
-      syncNavButtonChrome(existing);
+      if (navButtonNeedsRebuild(existing)) {
+        existing.replaceWith(buildNavButton(template));
+      } else {
+        syncNavButtonLabels(existing);
+        bindNavHoverChrome(existing);
+      }
       continue;
     }
 
-    const anchor = findNavAnchor(nav);
-    if (!anchor) continue;
-
-    // Prefer inserting before More; fall back to before settings / after last link.
-    const more = nav.querySelector('[data-testid="AppTabBar_More_Menu"]');
-    const settingsLink =
-      nav.querySelector('a[href="/settings"]') ||
-      nav.querySelector('a[href*="/settings"]');
-    const insertBefore = more || settingsLink;
-
-    const btn = buildNavButton(anchor);
+    const insertBefore = findNavInsertBefore(nav);
+    const btn = buildNavButton(template);
     if (insertBefore) {
       insertBefore.insertAdjacentElement('beforebegin', btn);
+    } else if (template.parentElement === nav) {
+      template.insertAdjacentElement('beforebegin', btn);
     } else {
-      anchor.insertAdjacentElement('afterend', btn);
+      nav.appendChild(btn);
     }
   }
 }

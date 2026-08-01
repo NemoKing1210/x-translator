@@ -48,11 +48,35 @@ export function renderSafeLink(link) {
 }
 
 /**
+ * X often renders emoji as Twemoji `<img alt="…">` (or role=img + aria-label).
+ * `innerText` / `textContent` omit those, so materialize them as text first.
+ * @param {ParentNode} root
+ */
+function materializeEmojiImages(root) {
+  for (const img of [...root.querySelectorAll('img[alt]')]) {
+    const alt = String(img.getAttribute('alt') || '').replace(/\u00a0/g, ' ').trim();
+    if (!alt) continue;
+    img.replaceWith(document.createTextNode(alt));
+  }
+
+  for (const el of [...root.querySelectorAll('[role="img"][aria-label]')]) {
+    if (el.tagName === 'IMG') continue;
+    const label = String(el.getAttribute('aria-label') || '')
+      .replace(/\u00a0/g, ' ')
+      .trim();
+    if (!label) continue;
+    el.replaceWith(document.createTextNode(label));
+  }
+}
+
+/**
  * Replace anchors with stable tokens so translators do not mangle URLs.
  * @param {ParentNode} root
  * @returns {{ text: string, links: LinkedAnchor[] }}
  */
 export function extractLinkedText(root) {
+  materializeEmojiImages(root);
+
   const links = [];
   const anchors = [...root.querySelectorAll('a[href]')];
   for (const a of anchors) {

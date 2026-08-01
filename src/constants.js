@@ -11,7 +11,6 @@ export const AUTHOR_AVATAR_URL =
 export const SCRIPT_VERSION = pkg.version;
 export const SETTINGS_KEY = 'xt_settings';
 export const CACHE_KEY = 'xt_cache_v1';
-export const STATS_KEY = 'xt_stats_v1';
 export const ROOT_ATTR = 'data-xt-root';
 export const POST_ATTR = 'data-xt-post';
 export const BTN_ATTR = 'data-xt-btn';
@@ -115,7 +114,6 @@ export const DEFAULT_SETTINGS = {
   /** Skip translation when detected source is in this list */
   langBlocklist: [],
   autoDetectSkipSameLang: true,
-  debugMode: false,
   provider: 'google',
   providerConfig: mergeProviderConfig(null),
 };

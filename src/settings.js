@@ -23,6 +23,7 @@ function normalizeSettings(raw) {
   merged.accountBlocklist = normalizeHandleList(merged.accountBlocklist);
   merged.langAllowlist = normalizeLangList(merged.langAllowlist);
   merged.langBlocklist = normalizeLangList(merged.langBlocklist);
+  delete merged.debugMode;
   return merged;
 }
 

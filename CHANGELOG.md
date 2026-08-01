@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] — 2026-08-01
+
+### Removed
+
+- Settings **Debug** tab, debug mode, and session translate / cache-hit statistics
+
+## [1.1.5] — 2026-08-01
+
+### Changed
+
+- Settings form fields stack in a single column (Translation, Languages, Cache) instead of a two-column grid
+
 ## [1.1.4] — 2026-08-01
 
 ### Fixed

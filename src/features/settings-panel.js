@@ -15,7 +15,6 @@ import {
 import { fmt, LOCALE_FLAG_AUTO, LOCALE_FLAGS, LOCALE_NATIVE_NAMES, SUPPORTED_LOCALES } from '../i18n/index.js';
 import { getProvider, TRANSLATION_PROVIDERS } from '../providers/registry.js';
 import { saveSettings } from '../settings.js';
-import { getCacheHitRate, getTranslateStats, resetTranslateStats } from '../stats.js';
 import { reloadRuntimeSettings, settings, t } from '../state.js';
 import { formatHandleDisplay, normalizeHandle } from '../utils/handle.js';
 import { escapeAttr, escapeHtml } from '../utils/html.js';
@@ -29,7 +28,6 @@ const SETTINGS_TABS = [
   { id: 'general', labelKey: 'sectionGeneral' },
   { id: 'providers', labelKey: 'sectionProviders' },
   { id: 'cache', labelKey: 'sectionCache' },
-  { id: 'debug', labelKey: 'sectionDebug' },
   { id: 'about', labelKey: 'sectionAbout' },
 ];
 
@@ -586,7 +584,7 @@ function buildGeneralPanelHtml() {
   );
 
   const translateBody = `
-    <div class="xt-grid xt-grid--2">
+    <div class="xt-grid">
       ${fieldHtml(
         t.settingsTargetLang,
         `<select name="targetLang">${langOptions(settings.targetLang)}</select>`
@@ -658,7 +656,7 @@ function buildGeneralPanelHtml() {
   });
 
   const languagesBody = `
-    <div class="xt-grid xt-grid--2">
+    <div class="xt-grid">
       ${listEditorHtml({
         title: t.settingsLangAllowlist,
         hint: t.settingsLangAllowlistHint,
@@ -770,28 +768,6 @@ function langPickerOptions(exclude = []) {
   }).join('');
 }
 
-function buildStatsHtml(stats = getTranslateStats()) {
-  const rate = getCacheHitRate(stats);
-  return `
-    <div class="xt-stats" data-xt-stats>
-      <div class="xt-stats__title">${escapeHtml(t.statsTitle)}</div>
-      <ul class="xt-stats__list">
-        <li>${escapeHtml(fmt(t.statsTranslations, { count: stats.translations }))}</li>
-        <li>${escapeHtml(fmt(t.statsCacheHits, { count: stats.cacheHits }))}</li>
-        <li>${escapeHtml(fmt(t.statsCacheMisses, { count: stats.cacheMisses }))}</li>
-        <li>${escapeHtml(fmt(t.statsHitRate, { rate }))}</li>
-      </ul>
-      <button type="button" class="xt-settings__ghost" data-xt-stats-reset="1">${escapeHtml(t.statsReset)}</button>
-    </div>
-  `;
-}
-
-function paintStats(dialog) {
-  const host = dialog?.querySelector('[data-xt-stats-host]');
-  if (!host) return;
-  host.innerHTML = buildStatsHtml();
-}
-
 function syncOptionVisibility(dialog) {
   const form = dialog?.querySelector('form');
   if (!form) return;
@@ -843,7 +819,6 @@ function readForm(form) {
     accountBlocklist: readHandleListFromHost(form, '[data-xt-blocklist-host]'),
     langAllowlist: readLangListFromHost(form, '[data-xt-lang-allow-host]'),
     langBlocklist: readLangListFromHost(form, '[data-xt-lang-block-host]'),
-    debugMode: form.debugMode.checked,
   };
 }
 
@@ -925,7 +900,7 @@ export function openSettings() {
               t.settingsSectionCache,
               `
                 ${buildCacheMeterHtml()}
-                <div class="xt-grid xt-grid--2 xt-grid--cache">
+                <div class="xt-grid">
                   ${fieldHtml(
                     t.settingsCacheHours,
                     `<input name="cacheHours" type="number" min="0" max="${CACHE_HOURS_MAX}" step="1" value="${escapeAttr(String(settings.cacheHours))}" />`,
@@ -935,22 +910,6 @@ export function openSettings() {
                     <button type="button" class="xt-settings__ghost xt-settings__ghost--danger" data-xt-clear="1">${escapeHtml(t.settingsClearCache)}</button>
                   </div>
                 </div>
-              `
-            )}
-          </div>
-          <div ${panelAttrs('debug', activeTab)}>
-            ${sectionHtml(
-              t.settingsSectionDebug,
-              `
-                <label class="xt-check xt-check--card">
-                  <span class="xt-check__text">
-                    <strong class="xt-check__title">${escapeHtml(t.settingsDebug)}</strong>
-                    <span class="xt-check__hint">${escapeHtml(t.settingsDebugHint)}</span>
-                  </span>
-                  <input name="debugMode" type="checkbox"${settings.debugMode ? ' checked' : ''} />
-                  <span class="xt-check__track" aria-hidden="true"></span>
-                </label>
-                <div data-xt-stats-host>${buildStatsHtml()}</div>
               `
             )}
           </div>
@@ -1175,12 +1134,6 @@ export function openSettings() {
       const select = form.querySelector(`select[name="${selectName}"]`);
       if (select) select.innerHTML = langPickerOptions(list);
       return;
-    }
-
-    if (e.target?.closest?.('[data-xt-stats-reset]')) {
-      resetTranslateStats();
-      paintStats(dialog);
-      showToast(t.statsResetDone, { type: 'info' });
     }
   });
 

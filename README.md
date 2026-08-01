@@ -84,7 +84,7 @@ For hot reload during development, run `npm run dev` and install the Vite-served
 
 ### Settings & polish
 
-- Tabbed settings dialog styled like X modals: **General · Providers · Cache · Debug · About**
+- Tabbed settings dialog styled like X modals: **General · Providers · Cache · About**
 - Translation providers: Google (default, no key), DeepL, Microsoft, OpenAI, Yandex, LibreTranslate — fields depend on the selected provider
 - Entry points:
   - Left sidebar item **Translator** (before More / Settings)
@@ -111,7 +111,6 @@ Open **Translator** in the left nav, or the manager menu → **X Translator — 
 | **General** | Interface language; target language; mode (button / auto); auto scope + allowlist; replace reveal; account blocklist; source language allow/block lists; display mode (panel / replace); skip if already target | Auto / button / all / button / panel / on |
 | **Providers** | Provider + API credentials / URL fields | Google |
 | **Cache** | Usage meter; cache hours (`0` = off); clear cache | 24 |
-| **Debug** | Debug mode; translate / cache-hit statistics | off |
 | **About** | Description, repository link, author card | — |
 
 Saving closes the panel and applies immediately (nav labels and tweet buttons refresh).

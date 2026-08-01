@@ -614,7 +614,7 @@ function ensureResult(postEl) {
   return box;
 }
 
-function buildResultInnerHtml({ translated, detected, fromCache, error, links }) {
+function buildResultInnerHtml({ translated, detected, error, links }) {
   if (error) {
     return (
       `<div class="xt-result__error">${escapeHtml(error)}</div>` +
@@ -624,7 +624,6 @@ function buildResultInnerHtml({ translated, detected, fromCache, error, links })
 
   const metaParts = [];
   if (detected) metaParts.push(fmt(t.detectedLang, { lang: detected }));
-  if (fromCache && settings.debugMode) metaParts.push('cache');
 
   const body = restoreLinkedHtml(translated, links || []);
 
@@ -771,9 +770,6 @@ async function runTranslate(postEl, btn) {
     postEl.setAttribute(AUTO_DONE_ATTR, '1');
   } catch (err) {
     setTranslatingBlur(postEl, false);
-    if (settings.debugMode) {
-      console.warn('[X Translator] translate failed', err);
-    }
     const msg =
       err?.message === 'missing-config' ? t.errProviderConfig : t.errNetwork;
     showResult(postEl, { error: msg });

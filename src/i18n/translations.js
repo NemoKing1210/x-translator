@@ -113,6 +113,9 @@ export const TRANSLATIONS = {
     settingsLangAllowlistHint: 'If not empty, only posts detected as these languages are translated. Leave empty for all.',
     settingsLangBlocklist: 'Source language blocklist',
     settingsLangBlocklistHint: 'Skip posts detected as these languages.',
+    settingsSkipNative: 'Skip posts X already auto-translated',
+    settingsSkipNativeHint:
+      'When X shows its translation bar (Show original), don’t add Translate or auto-translate.',
     langListEmpty: 'No languages selected.',
     langListAdd: 'Add',
     langListExists: '{lang} is already in the list',
@@ -240,6 +243,9 @@ export const TRANSLATIONS = {
     settingsLangAllowlistHint: 'Если список не пуст — переводятся только посты на этих языках. Пустой список = все языки.',
     settingsLangBlocklist: 'Запрещённые языки оригинала',
     settingsLangBlocklistHint: 'Пропускать посты на этих языках.',
+    settingsSkipNative: 'Пропускать посты с автопереводом X',
+    settingsSkipNativeHint:
+      'Если X уже показывает панель перевода («Показать оригинал»), не добавлять нашу кнопку и не автопереводить.',
     langListEmpty: 'Языки не выбраны.',
     langListAdd: 'Добавить',
     langListExists: '{lang} уже в списке',
@@ -367,6 +373,8 @@ export const TRANSLATIONS = {
     settingsLangAllowlistHint: '非空时仅翻译检测到的这些语言。留空表示全部。',
     settingsLangBlocklist: '源语言黑名单',
     settingsLangBlocklistHint: '跳过这些源语言的帖子。',
+    settingsSkipNative: '跳过已被 X 自动翻译的帖子',
+    settingsSkipNativeHint: '当 X 已显示翻译栏（显示原文）时，不添加翻译按钮，也不自动翻译。',
     langListEmpty: '尚未选择语言。',
     langListAdd: '添加',
     langListExists: '{lang} 已在列表中',
@@ -494,6 +502,9 @@ export const TRANSLATIONS = {
     settingsLangAllowlistHint: 'Si no está vacía, solo se traducen estos idiomas. Vacía = todos.',
     settingsLangBlocklist: 'Idiomas de origen bloqueados',
     settingsLangBlocklistHint: 'Omitir publicaciones en estos idiomas.',
+    settingsSkipNative: 'Omitir posts que X ya autotradujo',
+    settingsSkipNativeHint:
+      'Si X ya muestra su barra de traducción (Mostrar original), no añadir Traducir ni autotraducir.',
     langListEmpty: 'Ningún idioma seleccionado.',
     langListAdd: 'Añadir',
     langListExists: '{lang} ya está en la lista',
@@ -621,6 +632,9 @@ export const TRANSLATIONS = {
     settingsLangAllowlistHint: 'Se não estiver vazia, só traduz esses idiomas. Vazia = todos.',
     settingsLangBlocklist: 'Idiomas de origem bloqueados',
     settingsLangBlocklistHint: 'Ignorar posts nesses idiomas.',
+    settingsSkipNative: 'Ignorar posts que o X já traduziu automaticamente',
+    settingsSkipNativeHint:
+      'Quando o X já mostra a barra de tradução (Mostrar original), não adicionar Traduzir nem traduzir automaticamente.',
     langListEmpty: 'Nenhum idioma selecionado.',
     langListAdd: 'Adicionar',
     langListExists: '{lang} já está na lista',
@@ -748,6 +762,9 @@ export const TRANSLATIONS = {
     settingsLangAllowlistHint: 'Wenn nicht leer, nur diese Sprachen übersetzen. Leer = alle.',
     settingsLangBlocklist: 'Gesperrte Ausgangssprachen',
     settingsLangBlocklistHint: 'Beiträge in diesen Sprachen überspringen.',
+    settingsSkipNative: 'Von X bereits automatisch übersetzte Beiträge überspringen',
+    settingsSkipNativeHint:
+      'Wenn X bereits seine Übersetzungsleiste zeigt (Original anzeigen), keine Übersetzen-Schaltfläche und keine Auto-Übersetzung.',
     langListEmpty: 'Keine Sprachen ausgewählt.',
     langListAdd: 'Hinzufügen',
     langListExists: '{lang} ist bereits in der Liste',
@@ -875,6 +892,9 @@ export const TRANSLATIONS = {
     settingsLangAllowlistHint: 'Si non vide, seules ces langues sont traduites. Vide = toutes.',
     settingsLangBlocklist: 'Langues source bloquées',
     settingsLangBlocklistHint: 'Ignorer les posts dans ces langues.',
+    settingsSkipNative: 'Ignorer les posts déjà auto-traduits par X',
+    settingsSkipNativeHint:
+      'Si X affiche déjà sa barre de traduction (Afficher l’original), ne pas ajouter Traduire ni auto-traduire.',
     langListEmpty: 'Aucune langue sélectionnée.',
     langListAdd: 'Ajouter',
     langListExists: '{lang} est déjà dans la liste',
@@ -1002,6 +1022,9 @@ export const TRANSLATIONS = {
     settingsLangAllowlistHint: '空でなければ、検出されたこれらの言語だけ翻訳します。空 = すべて。',
     settingsLangBlocklist: '原文言語のブロックリスト',
     settingsLangBlocklistHint: 'これらの言語の投稿をスキップします。',
+    settingsSkipNative: 'X が既に自動翻訳した投稿をスキップ',
+    settingsSkipNativeHint:
+      'X の翻訳バー（オリジナルを表示）が出ている投稿には、翻訳ボタンを付けず自動翻訳もしません。',
     langListEmpty: '言語が未選択です。',
     langListAdd: '追加',
     langListExists: '{lang} はすでにリストにあります',

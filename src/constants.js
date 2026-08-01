@@ -49,6 +49,13 @@ export const POST_TEXT_SELECTORS = [
 export const QUOTE_HEADER_ROW_SELECTOR = '.r-1habvwh.r-18u37iz.r-1wbh5a2';
 
 /**
+ * Path prefix of X’s machine-translation glyph (viewBox ≈ 0 0 33 32).
+ * Used both on the auto-translate bar (near tweet text) and on the Grok header
+ * button — detection must scope to the text column, not the whole article.
+ */
+export const NATIVE_AUTO_TRANSLATE_ICON_PATH = 'M12.745 20.54';
+
+/**
  * Target languages for post translation (Google Translate codes).
  * `name` is the native / common full label shown in Settings.
  */
@@ -119,6 +126,11 @@ export const DEFAULT_SETTINGS = {
   langAllowlist: [],
   /** Skip translation when detected source is in this list */
   langBlocklist: [],
+  /**
+   * When true, skip posts/replies that already show X’s built-in auto-translation
+   * chrome (no Translate button, no auto-translate).
+   */
+  skipNativeAutoTranslate: true,
   provider: 'google',
   providerConfig: mergeProviderConfig(null),
 };

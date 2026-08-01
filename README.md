@@ -76,6 +76,7 @@ For hot reload during development, run `npm run dev` and install the Vite-served
 - Translation shown in a result panel (smooth expand) or in place of the original text (button / hover peek / split view); links and mentions stay clickable; emoji kept in the translated text
 - Optional **automatic** mode: translate as soon as a post is even slightly on screen (all accounts or a selected allowlist; manage via settings or the tweet **…** menu)
 - Account **blocklist** and source-language allow/block lists (“don’t touch” filters)
+- Optional skip when **X already auto-translated** a post (on by default — no duplicate Translate / auto-translate)
 - Icons on Translate / Hide / Show original / Retry
 - Target language from settings — **Auto** follows the UI / browser locale, or pick from ~40 languages with full names and flags
 - Posts already in the target language are left alone (no result panel)
@@ -108,7 +109,7 @@ Open **Translator** in the left nav, or the manager menu → **X Translator — 
 
 | Tab | What you can change | Default |
 |-----|---------------------|---------|
-| **General** | Interface language; target language; mode (button / auto); auto scope + allowlist; replace reveal; account blocklist; source language allow/block lists; display mode (panel / replace) | Auto / button / all / button / panel |
+| **General** | Interface language; target language; mode (button / auto); auto scope + allowlist; replace reveal; skip X auto-translated posts; account blocklist; source language allow/block lists; display mode (panel / replace) | Auto / button / all / button / on / panel |
 | **Providers** | Provider + API credentials / URL fields | Google |
 | **Cache** | Usage meter; cache hours (`0` = off); clear cache | 24 |
 | **About** | Description, repository link, author card | — |

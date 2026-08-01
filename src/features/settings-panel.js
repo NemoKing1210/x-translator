@@ -637,6 +637,14 @@ function buildGeneralPanelHtml() {
         })}
       </div>
     </div>
+    <label class="xt-check xt-check--card">
+      <span class="xt-check__text">
+        <span class="xt-check__title">${escapeHtml(t.settingsSkipNative)}</span>
+        <span class="xt-check__hint">${escapeHtml(t.settingsSkipNativeHint)}</span>
+      </span>
+      <input name="skipNativeAutoTranslate" type="checkbox"${settings.skipNativeAutoTranslate !== false ? ' checked' : ''} />
+      <span class="xt-check__track" aria-hidden="true"></span>
+    </label>
   `;
 
   const accountsBody = listEditorHtml({
@@ -807,6 +815,7 @@ function readForm(form) {
         ? form.replaceReveal.value
         : 'button',
     autoScope: form.autoScope?.value === 'allowlist' ? 'allowlist' : 'all',
+    skipNativeAutoTranslate: Boolean(form.skipNativeAutoTranslate?.checked),
     autoAllowlist: readHandleListFromHost(form, '[data-xt-allowlist-host]'),
     accountBlocklist: readHandleListFromHost(form, '[data-xt-blocklist-host]'),
     langAllowlist: readLangListFromHost(form, '[data-xt-lang-allow-host]'),

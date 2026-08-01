@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] — 2026-08-02
+
+### Added
+
+- Setting **Skip posts X already auto-translated** (on by default): no Translate button and no auto-translate when X shows its built-in translation bar (detected only on the bar next to the post text, not the whole tweet card)
+
 ## [1.2.6] — 2026-08-02
 
 ### Fixed

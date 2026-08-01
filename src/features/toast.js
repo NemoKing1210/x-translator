@@ -7,12 +7,12 @@ const MAX_VISIBLE = 4;
 
 const TOAST_ICONS = {
   success:
-    '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5 10.5 8.2 13.7 15 6.5" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  info: '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="7.25" stroke="currentColor" stroke-width="1.8"/><path d="M10 9v4.5M10 6.5h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+    '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9.2 16.2 5.5 12.5l1.4-1.4 2.3 2.3 7-7 1.4 1.4-8.4 8.4Z" fill="currentColor"/></svg>',
+  info: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2.75a9.25 9.25 0 1 1 0 18.5 9.25 9.25 0 0 1 0-18.5Zm0 8.25a1 1 0 0 0-1 1v4.5a1 1 0 1 0 2 0V12a1 1 0 0 0-1-1Zm0-3.75a1.25 1.25 0 1 0 0 2.5 1.25 1.25 0 0 0 0-2.5Z" fill="currentColor"/></svg>',
   warning:
-    '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 3.5 17.5 16H2.5L10 3.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M10 8v4M10 14h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+    '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12.87 4.5c-.38-.68-1.36-.68-1.74 0L3.4 18.25c-.37.66.11 1.5.87 1.5h15.46c.76 0 1.24-.84.87-1.5L12.87 4.5ZM11 10.5h2v4h-2v-4Zm0 5.5h2v2h-2v-2Z" fill="currentColor"/></svg>',
   error:
-    '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="7.25" stroke="currentColor" stroke-width="1.8"/><path d="m7.2 7.2 5.6 5.6M12.8 7.2l-5.6 5.6" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>',
+    '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2.75a9.25 9.25 0 1 1 0 18.5 9.25 9.25 0 0 1 0-18.5Zm3.03 6.22-1.41-1.41L12 10.59 9.38 7.97 7.97 9.38 10.59 12l-2.62 2.62 1.41 1.41L12 13.41l2.62 2.62 1.41-1.41L13.41 12l2.62-2.62Z" fill="currentColor"/></svg>',
 };
 
 function ensureHost() {
@@ -33,7 +33,7 @@ function dismissToast(el) {
   el.classList.add('is-leaving');
   const done = () => el.remove();
   el.addEventListener('transitionend', done, { once: true });
-  setTimeout(done, 320);
+  setTimeout(done, 280);
 }
 
 function normalizeType(type) {
@@ -85,7 +85,7 @@ export function showToast(messageOrOpts, options = {}) {
     (message ? `<span class="xt-toast__text">${escapeHtml(message)}</span>` : '') +
     `</span>` +
     `<button type="button" class="xt-toast__close" aria-label="${escapeAttr(dismissLabel)}">` +
-    `<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m4 4 8 8M12 4 4 12" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>` +
+    `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M10.59 12 5.3 6.7l1.4-1.4L12 10.59l5.3-5.3 1.4 1.4L13.41 12l5.3 5.3-1.4 1.4L12 13.41l-5.3 5.3-1.4-1.4L10.59 12Z" fill="currentColor"/></svg>` +
     `</button>` +
     `<span class="xt-toast__bar" style="animation-duration:${duration}ms"></span>`;
 

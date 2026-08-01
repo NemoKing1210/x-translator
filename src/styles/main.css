@@ -419,20 +419,20 @@ html:not([data-xt-theme]) {
   line-height: 1.4;
 }
 
-/* ── Toasts (bottom snackbar) ── */
+/* ── Toasts (top-right, X elevated chrome) ── */
 .xt-toast-host {
   position: fixed;
-  left: 50%;
-  bottom: 24px;
-  right: auto;
-  top: auto;
-  transform: translateX(-50%);
+  top: 16px;
+  right: 16px;
+  left: auto;
+  bottom: auto;
+  transform: none;
   z-index: 2147483000;
   display: flex;
   flex-direction: column-reverse;
-  align-items: center;
-  gap: 8px;
-  width: min(380px, calc(100vw - 24px));
+  align-items: flex-end;
+  gap: 12px;
+  width: min(356px, calc(100vw - 32px));
   pointer-events: none;
 }
 
@@ -441,55 +441,80 @@ html:not([data-xt-theme]) {
   position: relative;
   display: grid;
   grid-template-columns: auto 1fr auto;
-  gap: 0.55rem;
-  align-items: start;
+  gap: 12px;
+  align-items: center;
   width: 100%;
-  padding: 12px 14px 14px;
+  padding: 12px 8px 12px 12px;
   border-radius: 16px;
   border: 1px solid var(--xt-border);
-  background: var(--xt-elevated);
+  background: var(--xt-surface);
   color: var(--xt-fg);
   box-shadow: var(--xt-shadow);
+  font: inherit;
+  letter-spacing: normal;
   opacity: 0;
-  transform: translateY(8px);
+  transform: translateX(12px);
   transition:
-    opacity 0.2s ease,
-    transform 0.2s ease;
+    opacity 0.18s ease,
+    transform 0.18s ease;
   overflow: hidden;
 }
 
 .xt-toast.is-visible {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateX(0);
 }
 
 .xt-toast.is-leaving {
   opacity: 0;
-  transform: translateY(6px);
+  transform: translateX(12px);
 }
 
 .xt-toast__icon {
-  width: 1.15rem;
-  height: 1.15rem;
-  margin-top: 0.05rem;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  margin: 0;
+  border-radius: 999px;
+  background: rgba(29, 155, 240, 0.12);
   color: var(--xt-accent);
 }
 
+.xt-toast__icon svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
 .xt-toast--success .xt-toast__icon {
+  background: rgba(0, 186, 124, 0.12);
   color: var(--xt-success);
 }
+
 .xt-toast--warning .xt-toast__icon {
+  background: rgba(255, 212, 0, 0.14);
+  color: #ca8a04;
+}
+
+html[data-xt-theme='dim'] .xt-toast--warning .xt-toast__icon,
+html[data-xt-theme='dark'] .xt-toast--warning .xt-toast__icon,
+html:not([data-xt-theme]) .xt-toast--warning .xt-toast__icon {
   color: var(--xt-warn);
 }
+
 .xt-toast--error .xt-toast__icon {
+  background: var(--xt-danger-bg);
   color: var(--xt-danger);
 }
 
 .xt-toast__body {
   display: flex;
   flex-direction: column;
-  gap: 0.1rem;
+  gap: 2px;
   min-width: 0;
+  padding: 2px 0;
 }
 
 .xt-toast__title {
@@ -501,50 +526,65 @@ html:not([data-xt-theme]) {
 
 .xt-toast__text {
   font-size: 13px;
+  font-weight: 400;
   line-height: 16px;
   color: var(--xt-fg-muted);
 }
 
 .xt-toast__close {
   appearance: none;
-  border: 0;
-  background: transparent;
-  color: var(--xt-fg-muted);
-  cursor: pointer;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  align-self: start;
+  width: 34px;
+  height: 34px;
+  margin: 0;
   padding: 0;
-  width: 1.25rem;
-  height: 1.25rem;
+  border: 0;
   border-radius: 999px;
+  background: transparent;
+  color: var(--xt-fg);
+  cursor: pointer;
+  transition: background 0.15s ease;
 }
 
 .xt-toast__close:hover {
-  color: var(--xt-fg);
   background: var(--xt-hover);
 }
 
+.xt-toast__close:focus-visible {
+  outline: 2px solid var(--xt-accent);
+  outline-offset: 2px;
+}
+
 .xt-toast__close svg {
-  width: 100%;
-  height: 100%;
+  width: 18px;
+  height: 18px;
   display: block;
 }
 
 .xt-toast__bar {
   position: absolute;
   left: 0;
+  right: 0;
   bottom: 0;
-  height: 2px;
+  height: 3px;
   width: 100%;
   transform-origin: left center;
   background: var(--xt-accent);
+  opacity: 0.85;
   animation: xt-toast-bar linear forwards;
 }
 
 .xt-toast--success .xt-toast__bar {
   background: var(--xt-success);
 }
+
 .xt-toast--warning .xt-toast__bar {
   background: var(--xt-warn);
 }
+
 .xt-toast--error .xt-toast__bar {
   background: var(--xt-danger);
 }
@@ -1244,7 +1284,9 @@ body.xt-scroll-lock {
   }
 
   .xt-toast-host {
-    bottom: 16px;
+    top: 12px;
+    right: 12px;
+    width: min(356px, calc(100vw - 24px));
   }
 }
 

@@ -90,7 +90,7 @@ For hot reload during development, run `npm run dev` and install the Vite-served
   - Left sidebar item **Translator** (before More / Settings)
   - Userscript manager menu command
 - Interface languages: English, Русский, 中文, Español, Português, Deutsch, Français, 日本語 (+ Auto)
-- Bottom snackbar toasts for save / cache clear
+- Top-right toasts styled like X chrome for save / cache clear
 - Translation cache in userscript storage (configurable TTL)
 
 ### Technical

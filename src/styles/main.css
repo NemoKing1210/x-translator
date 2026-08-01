@@ -188,12 +188,18 @@ html:not([data-xt-theme]) {
   margin-top: 0.35rem;
 }
 
-/* Header action row (next to Grok / caret) */
+/* Header action row (next to Grok / caret; quote: end of name row) */
 .xt-header-action {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
+  flex: 0 0 auto;
+}
+
+.xt-header-action--quote {
+  margin-left: auto;
+  align-self: center;
 }
 
 .xt-btn--header {

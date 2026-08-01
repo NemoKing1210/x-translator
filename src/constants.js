@@ -43,6 +43,12 @@ export const POST_TEXT_SELECTORS = [
 ];
 
 /**
+ * Quote-card header row (avatar | User-Name). X atomic classes — adjust when
+ * the web client renames them. Translate control is appended as a direct child.
+ */
+export const QUOTE_HEADER_ROW_SELECTOR = '.r-1habvwh.r-18u37iz.r-1wbh5a2';
+
+/**
  * Target languages for post translation (Google Translate codes).
  * `name` is the native / common full label shown in Settings.
  */

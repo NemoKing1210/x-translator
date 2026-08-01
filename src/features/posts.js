@@ -5,6 +5,7 @@ import {
   BTN_ATTR,
   POST_ATTR,
   POST_TEXT_SELECTORS,
+  QUOTE_HEADER_ROW_SELECTOR,
   RESULT_ATTR,
   TARGET_LANGUAGES,
   TOOLBAR_ATTR,
@@ -130,12 +131,35 @@ function isInQuoteEmbed(el, article) {
 }
 
 /**
+ * Quote embeds have no Grok / caret — append the control as a *direct child*
+ * of the quote header row (`.r-1habvwh.r-18u37iz.r-1wbh5a2`).
+ * @returns {{ row: Element, before: Element | null } | null}
+ */
+function findQuoteHeaderActionsSlot(postEl) {
+  const quote = getQuoteCard(postEl);
+  if (!quote) return null;
+
+  const row = [...quote.querySelectorAll(QUOTE_HEADER_ROW_SELECTOR)].find(
+    (el) =>
+      el.querySelector('[data-testid="Tweet-User-Avatar"]') &&
+      el.querySelector('[data-testid="User-Name"]')
+  );
+  if (!row) return null;
+  return { row, before: null };
+}
+
+/**
  * Tweet header actions row: Grok + caret (More).
  * Insert our control as a sibling before Grok (or before caret if no Grok).
- * @returns {{ row: Element, before: Element } | null}
+ * Quote embeds: end of the quote header row (avatar + name).
+ * @returns {{ row: Element, before: Element | null } | null}
  */
 function findHeaderActionsSlot(postEl) {
+  const quoteSlot = findQuoteHeaderActionsSlot(postEl);
+  if (quoteSlot) return quoteSlot;
+
   if (getQuoteCard(postEl)) return null;
+
   const article = getTweetArticle(postEl);
   if (!article) return null;
 
@@ -200,7 +224,13 @@ function getTranslateButton(postEl) {
   const inBar = bar?.querySelector(`[${BTN_ATTR}]`);
   if (inBar) return inBar;
 
-  if (getQuoteCard(postEl)) return null;
+  const quote = getQuoteCard(postEl);
+  if (quote) {
+    return (
+      quote.querySelector(`.xt-header-action [${BTN_ATTR}]`) ||
+      quote.querySelector(`[${BTN_ATTR}][data-xt-header="1"]`)
+    );
+  }
 
   const article = getTweetArticle(postEl);
   if (!article) return null;
@@ -237,8 +267,18 @@ function placeTranslateButton(postEl, btn) {
     } else if (btn.parentElement !== wrap) {
       wrap.appendChild(btn);
     }
+    const inQuote = Boolean(getQuoteCard(postEl));
+    wrap.classList.toggle('xt-header-action--quote', inQuote);
 
-    if (wrap.parentElement !== slot.row || wrap.nextElementSibling !== slot.before) {
+    // Quotes: always append as last *direct* child of the header row.
+    if (inQuote || !slot.before) {
+      if (wrap.parentElement !== slot.row || slot.row.lastElementChild !== wrap) {
+        slot.row.appendChild(wrap);
+      }
+    } else if (
+      wrap.parentElement !== slot.row ||
+      wrap.nextElementSibling !== slot.before
+    ) {
       slot.row.insertBefore(wrap, slot.before);
     }
     const label = btn.getAttribute('aria-label');
@@ -246,7 +286,7 @@ function placeTranslateButton(postEl, btn) {
     return;
   }
 
-  // Fallback: under tweet text (quotes / missing header chrome).
+  // Fallback: under tweet text (missing header chrome).
   btn.classList.remove('xt-btn--header');
   btn.removeAttribute('data-xt-header');
   const orphanWrap = btn.closest('.xt-header-action');

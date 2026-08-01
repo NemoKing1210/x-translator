@@ -1,6 +1,6 @@
 {
   "name": "x-translator",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "private": true,
   "type": "module",
   "description": "Userscript that adds post translation on X (x.com)",

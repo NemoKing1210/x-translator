@@ -85,12 +85,21 @@ Translation providers live under `src/providers/registry.js` + `src/api/provider
 
 ## Releases
 
-When making any change that should reach users (including fixes and UI polish):
+When shipping a change that should reach users (including fixes and UI polish):
 
-1. Bump `version` in `package.json` (SemVer: patch for fixes, minor for features).
+1. Bump `version` in `package.json` (SemVer: patch for fixes, minor for features) **once per release**, not on every interim edit while iterating.
 2. Run `npm run build`.
-3. Add a Keep a Changelog entry in `CHANGELOG.md`.
+3. Add a Keep a Changelog entry in `CHANGELOG.md` for that release.
 4. Update [`README.md`](README.md) wherever the change is user-visible or developer-facing.
+
+### Changelog discipline
+
+[`CHANGELOG.md`](CHANGELOG.md) is for **notable, user-facing releases** — not a work log.
+
+- Do **not** add a new version section for every small follow-up fix, placement tweak, copy polish, or “try again” while finishing one feature.
+- While iterating on the same unreleased work, keep a **single** upcoming version entry and update its bullets as needed.
+- Skip changelog noise: internal refactors, selector nits with no user-visible delta, docs-only agent-instruction edits, and duplicate restatements of the same fix.
+- Prefer one clear bullet per user-visible outcome over a trail of micro-entries.
 
 ## Localization
 

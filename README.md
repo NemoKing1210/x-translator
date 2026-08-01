@@ -3,14 +3,14 @@
 [![CI](https://github.com/NemoKing1210/x-translator/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/x-translator/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/⬇_Install-userscript-1d9bf0?style=for-the-badge)](https://raw.githubusercontent.com/NemoKing1210/x-translator/main/x-translator.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.1.4-green?style=for-the-badge)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.2.5-green?style=for-the-badge)](CHANGELOG.md)
 [![Node](https://img.shields.io/badge/node-%3E%3D20-brightgreen?style=for-the-badge)](package.json)
 
 Userscript that adds **in-place translation** for posts and replies on [X](https://x.com) (Twitter) — without leaving the feed.
 
 Compatible with [Tampermonkey](https://www.tampermonkey.net/), [Violentmonkey](https://violentmonkey.github.io/), [Greasemonkey](https://www.greasespot.net/), [ScriptCat](https://scriptcat.org/), and other managers that support the `// ==UserScript==` metadata block.
 
-> **Status:** stable (`1.1.4`) — translate posts & comments in place, multiple providers, cache, filters, UI matched to X light / dim / lights-out.
+> **Status:** stable (`1.2.5`) — translate posts & comments in place, multiple providers, cache, filters, UI matched to X light / dim / lights-out.
 > **Note:** Not affiliated with X Corp. or Twitter.
 
 ---
@@ -71,7 +71,7 @@ For hot reload during development, run `npm run dev` and install the Vite-served
 
 ### On X (`x.com` / `twitter.com`)
 
-- **Translate** control in the tweet header (before Grok / More), with the result panel under the text when needed (spinner while loading; click does not open the tweet)
+- **Translate** control in the tweet header (before Grok / More; in quote cards, at the end of the quote name row), with the result panel under the text when needed (spinner while loading; click does not open the tweet)
 - Works on **timeline posts**, **replies/comments**, and **quoted tweets**
 - Translation shown in a result panel (smooth expand) or in place of the original text (button / hover peek / split view); links and mentions stay clickable
 - Optional **automatic** mode: translate as soon as a post is even slightly on screen (all accounts or a selected allowlist; manage via settings or the tweet **…** menu)
@@ -121,7 +121,7 @@ Saving closes the panel and applies immediately (nav labels and tweet buttons re
 
 1. Matches `https://x.com/*` and `https://twitter.com/*` at `document-idle`.
 2. Finds tweet text via `[data-testid="tweetText"]` inside `article[data-testid="tweet"]` (posts and replies share this id) — adjustable in `src/constants.js` if X’s DOM changes.
-3. Injects a **Translate** toolbar as a sibling after each eligible text node (quoted tweets: inside the quote card).
+3. Injects a **Translate** control in the tweet / quote header; the result panel sits under the text (quoted tweets: panel inside the quote card).
 4. On click (or auto viewport entry), requests the configured provider (Google by default) through the userscript sandbox (`GM_xmlhttpRequest` / `@connect`).
 5. Stores successful results in `GM` storage (`xt_cache_v1`) until TTL expires or you clear the cache.
 

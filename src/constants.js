@@ -45,8 +45,10 @@ export const POST_TEXT_SELECTORS = [
 /**
  * Quote-card header row (avatar | User-Name). X atomic classes — adjust when
  * the web client renames them. Translate control is appended as a direct child.
+ * Current: r-1awozwy; legacy: r-1habvwh.
  */
-export const QUOTE_HEADER_ROW_SELECTOR = '.r-1habvwh.r-18u37iz.r-1wbh5a2';
+export const QUOTE_HEADER_ROW_SELECTOR =
+  '.r-1awozwy.r-18u37iz.r-1wbh5a2, .r-1habvwh.r-18u37iz.r-1wbh5a2';
 
 /**
  * Path prefix of X’s machine-translation glyph (viewBox ≈ 0 0 33 32).

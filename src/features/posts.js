@@ -217,20 +217,40 @@ function isInQuoteEmbed(el, article) {
 
 /**
  * Quote embeds have no Grok / caret — append the control as a *direct child*
- * of the quote header row (`.r-1habvwh.r-18u37iz.r-1wbh5a2`).
+ * of the quote header row (avatar | User-Name).
  * @returns {{ row: Element, before: Element | null } | null}
  */
 function findQuoteHeaderActionsSlot(postEl) {
   const quote = getQuoteCard(postEl);
   if (!quote) return null;
 
-  const row = [...quote.querySelectorAll(QUOTE_HEADER_ROW_SELECTOR)].find(
-    (el) =>
-      el.querySelector('[data-testid="Tweet-User-Avatar"]') &&
-      el.querySelector('[data-testid="User-Name"]')
+  const isQuoteHeaderRow = (el) =>
+    Boolean(
+      el?.querySelector?.('[data-testid="Tweet-User-Avatar"]') &&
+        el?.querySelector?.('[data-testid="User-Name"]') &&
+        !el.querySelector?.('[data-testid="tweetText"]')
+    );
+
+  const bySelector = [...quote.querySelectorAll(QUOTE_HEADER_ROW_SELECTOR)].find(
+    isQuoteHeaderRow
   );
-  if (!row) return null;
-  return { row, before: null };
+  if (bySelector) return { row: bySelector, before: null };
+
+  // Structural fallback when X renames atomic row classes.
+  const userName = quote.querySelector('[data-testid="User-Name"]');
+  if (!userName) return null;
+  let node = userName.parentElement;
+  while (node && node !== quote) {
+    if (isQuoteHeaderRow(node)) {
+      const style = getComputedStyle(node);
+      const isRow =
+        (style.display === 'flex' || style.display === 'inline-flex') &&
+        String(style.flexDirection || 'row').startsWith('row');
+      if (isRow) return { row: node, before: null };
+    }
+    node = node.parentElement;
+  }
+  return null;
 }
 
 /**

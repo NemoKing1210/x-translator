@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.3] — 2026-08-02
+
+### Changed
+
+- Header action wrapper no longer forces 34×34 size (hover disc remains on the button `::before`)
+
+## [1.2.2] — 2026-08-02
+
+### Changed
+
+- Header Translate button is 20px tall; hover/focus disc stays 34×34 via `::before` (matches X action chrome)
+
 ## [1.2.1] — 2026-08-01
 
 ### Changed
@@ -65,6 +77,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Sidebar **Translator** entry and tweet caret menu actions
 - UI in 8 languages; chrome adapts to X light/dark theme
 
+[1.2.3]: https://github.com/NemoKing1210/x-translator/releases/tag/v1.2.3
+[1.2.2]: https://github.com/NemoKing1210/x-translator/releases/tag/v1.2.2
+[1.2.1]: https://github.com/NemoKing1210/x-translator/releases/tag/v1.2.1
+[1.2.0]: https://github.com/NemoKing1210/x-translator/releases/tag/v1.2.0
+[1.1.5]: https://github.com/NemoKing1210/x-translator/releases/tag/v1.1.5
 [1.1.4]: https://github.com/NemoKing1210/x-translator/releases/tag/v1.1.4
 [1.1.3]: https://github.com/NemoKing1210/x-translator/releases/tag/v1.1.3
 [1.1.2]: https://github.com/NemoKing1210/x-translator/releases/tag/v1.1.2

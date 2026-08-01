@@ -197,16 +197,37 @@ html:not([data-xt-theme]) {
 }
 
 .xt-btn--header {
+  position: relative;
+  z-index: 0;
   color: var(--xt-fg-muted);
   font-size: 15px;
   font-weight: 400;
   line-height: 1;
-  min-width: 34px;
-  min-height: 34px;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  min-height: 20px;
   padding: 0;
   justify-content: center;
   border-radius: 999px;
+  background: transparent;
   text-decoration: none !important;
+  overflow: visible;
+}
+
+/* Hover / focus disc keeps the previous 34×34 hit area */
+.xt-btn--header::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 34px;
+  height: 34px;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  background-color: transparent;
+  transition: background-color 0.15s ease;
+  z-index: -1;
 }
 
 .xt-btn--header .xt-btn__icon {
@@ -229,11 +250,19 @@ html:not([data-xt-theme]) {
 
 .xt-btn--header:hover:not(:disabled) {
   color: var(--xt-accent);
-  background-color: rgba(29, 155, 240, 0.1);
+  background-color: transparent;
   text-decoration: none;
 }
 
+.xt-btn--header:hover:not(:disabled)::before {
+  background-color: rgba(29, 155, 240, 0.1);
+}
+
 .xt-btn--header:focus-visible {
+  outline: none;
+}
+
+.xt-btn--header:focus-visible::before {
   outline: 2px solid var(--xt-accent);
   outline-offset: 0;
 }
